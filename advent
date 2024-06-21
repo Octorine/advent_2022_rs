@@ -1,0 +1,34 @@
+YEAR=2022
+DIR_NAME=$2
+case $1 in
+    clean)
+        rm -rf result
+        cargo clean
+        ;;
+    start)
+        mkdir -p examples/d${DIR_NAME}
+        cd examples/d$2
+        aoc download -y $YEAR -d ${DIR_NAME}
+        cp ../../src/main.rs .
+        cd ../..
+        ;;
+    build)
+        buildPhase
+        ;;
+    install)
+        buildPhase
+        installPhase
+        ;;
+    runDay)
+        time cargo run --release --example d${DIR_NAME} examples/d${DIR_NAME}/input
+        ;;
+    runAll)
+        for DAY in $(ls examples);
+        do
+            echo ${DAY}
+            time cargo run --release --example ${DAY} examples/${DAY}/input
+            echo
+        done
+        ;;
+esac
+
