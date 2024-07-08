@@ -30,5 +30,10 @@ case $1 in
             echo
         done
         ;;
+    showInput)
+        less examples/d${DIR_NAME}/input
+        ;;
+    showPuzzle)
+        less examples/d${DIR_NAME}/puzzle.md
 esac
 
