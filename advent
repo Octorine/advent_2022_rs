@@ -1,7 +1,7 @@
 YEAR=2022
 DIR_NAME=$2
 case $1 in
-    clean)
+     clean)
         rm -rf result
         cargo clean
         ;;
@@ -10,6 +10,11 @@ case $1 in
         cd examples/d$2
         aoc download -y $YEAR -d ${DIR_NAME}
         cp ../../src/main.rs .
+        cd ../..
+        ;;
+    refresh)
+        cd examples/d$2
+        aoc download -y $YEAR -d ${DIR_NAME}
         cd ../..
         ;;
     build)
@@ -21,6 +26,9 @@ case $1 in
         ;;
     runDay)
         time cargo run --release --example d${DIR_NAME} examples/d${DIR_NAME}/input
+        ;;
+    testDay)
+        time cargo run --release --example d${DIR_NAME} examples/d${DIR_NAME}/sample
         ;;
     runAll)
         for DAY in $(ls examples);
