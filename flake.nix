@@ -17,7 +17,12 @@
             src = ./.;
             name = "advent_2022_rs";
             inherit system;
-            nativeBuildInputs = [ pkgs.aoc-cli pkgs.cargo pkgs.rustc pkgs.rust-analyzer pkgs.lldb ];
+            nativeBuildInputs = [ pkgs.aoc-cli
+	    		      pkgs.cargo pkgs.rustc
+			      pkgs.rust-analyzer
+			      pkgs.gdb
+			      pkgs.rustfmt
+			       ];
             buildPhase = ''
               cargo build --release --examples
             '';
