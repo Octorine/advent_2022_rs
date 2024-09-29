@@ -6,14 +6,14 @@ case $1 in
         cargo clean
         ;;
     start)
-        mkdir -p examples/d${DIR_NAME}
-        cd examples/d$2
+        mkdir -p src/bin/d${DIR_NAME}
+        cd src/bin/d$2
         aoc download -y $YEAR -d ${DIR_NAME}
-        cp ../../src/main.rs .
-        cd ../..
+        cp ../../main.rs .
+        cd ../../..
         ;;
     refresh)
-        cd examples/d$2
+        cd src/bin/d$2
         aoc download -y $YEAR -d ${DIR_NAME}
         cd ../..
         ;;
@@ -25,23 +25,23 @@ case $1 in
         installPhase
         ;;
     runDay)
-        time cargo run --release --example d${DIR_NAME} examples/d${DIR_NAME}/input
+        time cargo run --release --bin d${DIR_NAME} src/bin/d${DIR_NAME}/input
         ;;
     testDay)
-        time cargo run --release --example d${DIR_NAME} examples/d${DIR_NAME}/sample
+        time cargo run --release --bin d${DIR_NAME} src/bin/d${DIR_NAME}/sample
         ;;
     runAll)
-        for DAY in $(ls examples);
+        for DAY in $(ls src/bin);
         do
             echo ${DAY}
-            time cargo run --release --example ${DAY} examples/${DAY}/input
+            time cargo run --release --bin $DAY src/bin/${DAY}/input
             echo
         done
         ;;
     showInput)
-        less examples/d${DIR_NAME}/input
+        less src/bin/d${DIR_NAME}/input
         ;;
     showPuzzle)
-        less examples/d${DIR_NAME}/puzzle.md
+        less src/bin/d${DIR_NAME}/puzzle.md
 esac
 
