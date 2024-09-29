@@ -2,7 +2,6 @@ fn main() {
     let puzzle_file = std::env::args()
         .nth(1)
         .expect("Error: Called without input");
-    let puzzle_data = std::fs::read_to_string(&puzzle_file).expect("Error: Invalid file.");
     println!("Part 1: {}\nPart 2: {}", p1(&puzzle_file), p2(&puzzle_file));
 }
 

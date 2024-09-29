@@ -109,7 +109,6 @@ struct Block {
 impl Block {
     pub fn new(lines: &[&str]) -> Block {
         let mut cells = HashSet::new();
-        let width = lines.iter().map(|line| line.len()).max().unwrap();
         let height = lines.len();
 
         for (line_num, line) in lines.iter().enumerate() {
@@ -140,6 +139,7 @@ impl Block {
     pub fn can_move(&self, dir: Coords, other: &Block) -> bool {
         !self.cells.iter().any(|c| other.cells.contains(&(*c + dir)))
     }
+    #[allow(dead_code)]
     pub fn draw(&self) {
         for j in 0..self.height() {
             for i in 0..self.width() {
