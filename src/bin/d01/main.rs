@@ -20,5 +20,5 @@ fn main() {
     let mut sums: Vec<i32> = backpacks.iter().map(|b| b.iter().sum::<i32>()).collect();
     sums.sort();
     sums.reverse();
-    println!("Part 1: {}.", sums.iter().take(3).sum::<i32>());
+    println!("Part 2: {}.", sums.iter().take(3).sum::<i32>());
 }
