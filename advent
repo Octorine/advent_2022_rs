@@ -14,7 +14,15 @@ case $1 in
         ;;
     refresh)
         cd src/bin/d$2
+        rm -f input
+        rm -f puzzle.md
         aoc download -y $YEAR -d ${DIR_NAME}
+        cd ../..
+        ;;
+    getInput)
+        cd src/bin/d$2
+        rm -f input
+        aoc download -I -y $YEAR -d ${DIR_NAME}
         cd ../..
         ;;
     build)
