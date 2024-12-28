@@ -34,7 +34,6 @@ fn mix(numbers: &Vec<(usize, i64)>, times: usize) -> Vec<(usize, i64)> {
         for &(index, number) in numbers.iter() {
             rot(&mut working, index, number);
         }
-        println!("After {} rounds: {:?}", t + 1, &working);
     });
     working
 }
