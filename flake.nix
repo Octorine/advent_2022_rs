@@ -11,27 +11,18 @@
     in
     {
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixpkgs-fmt;
-      packages.${system}.default =
-        pkgs.stdenv.mkDerivation
-          {
-            src = ./.;
-            name = "advent_2022_rs";
-            inherit system;
-            nativeBuildInputs = [ pkgs.aoc-cli
-	    		      pkgs.cargo pkgs.rustc
-			      pkgs.rust-analyzer
-			      pkgs.gdb
-			      pkgs.rustfmt
-			       ];
-            buildPhase = ''
-              cargo build --release --examples
-            '';
-            installPhase = ''
-              mkdir -p $out/bin
-              cp -R target/release/examples/d?? $out/bin
-              chmod +x $out
-            '';
-          };
+      devShells.${system}.default =
+        pkgs.mkShell {
+          packages = [
+            pkgs.aoc-cli
+            pkgs.cargo
+            pkgs.rustc
+            pkgs.rust-analyzer
+            pkgs.gdb
+	    pkgs.nodejs
+	    pkgs.rustfmt		
+          ];
+        };
     };
 }
 
