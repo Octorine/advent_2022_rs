@@ -19,6 +19,18 @@ case $1 in
         aoc download -y $YEAR -d ${DIR_NAME}
         cd ../..
         ;;
+    refreshAll)
+        for DAY in $(ls src/bin);
+        do
+            echo ${DAY}
+            cd src/bin/${DAY}
+            rm -f input
+            rm -f puzzle.md
+            aoc download -y $YEAR -d ${DAY:1}
+            cd ../../..
+            echo
+        done
+        ;;
     getInput)
         cd src/bin/d$2
         rm -f input
