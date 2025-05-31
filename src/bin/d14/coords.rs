@@ -15,37 +15,6 @@ impl Display for Coords {
     }
 }
 
-impl Coords {
-    pub fn mv(&mut self, dir: char) {
-        match dir {
-            'U' => self.y -= 1,
-            'D' => self.y += 1,
-            'L' => self.x -= 1,
-            'R' => self.x += 1,
-            _ => (),
-        }
-    }
-    pub fn follow(&mut self, other: Coords) {
-        if (self.x - other.x).abs() > 1 || (self.y - other.y).abs() > 1 {
-            if self.x - other.x == 0 {
-                let delta = self.y - other.y;
-                self.y += delta / delta.abs();
-            } else if self.y - other.y == 0 {
-                let delta = self.x - other.x;
-                self.x += delta / delta.abs();
-            } else {
-                let xd = self.x - other.x;
-                let yd = self.y - other.y;
-                self.x += xd / xd.abs();
-                self.y += yd / yd.abs();
-            }
-        }
-    }
-    pub fn distance(self, other: &Coords) -> i32 {
-        (self.x - other.x).abs() + (self.y - other.y).abs()
-    }
-}
-
 impl Add for Coords {
     type Output = Self;
 

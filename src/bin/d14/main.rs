@@ -121,7 +121,9 @@ fn main() {
             }
         }
         fn paths_parser(txt: &str) -> IResult<&str, Vec<Vec<Coords>>> {
-            separated_list1(multispace1, path_parser)(txt)
+            let (rest, paths) = separated_list1(multispace1, path_parser)(txt)?;
+            let (rest, _) = tag("\n")(rest)?;
+            IResult::Ok((rest, paths))
         }
         fn coord_parser(txt: &str) -> IResult<&str, Coords> {
             map(separated_pair(i32, tag(","), i32), |(x, y)| Coords { x, y })(txt)
