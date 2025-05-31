@@ -233,6 +233,7 @@ impl<'a> State<'a> {
 mod parse {
     use nom::branch::alt;
     use nom::character::complete::{i32, multispace1};
+    use nom::sequence::terminated;
     use nom::{
         bytes::complete::tag, character::complete::alpha1, multi::separated_list1,
         sequence::preceded, IResult,
@@ -241,7 +242,7 @@ mod parse {
     use crate::Valve;
 
     pub fn parse(txt: &str) -> Result<Vec<Valve>, String> {
-        match separated_list1(multispace1, parse_valve)(txt) {
+        match terminated(separated_list1(multispace1, parse_valve), tag("\n"))(txt) {
             Err(e) => Err(format!("Error parsing input: {:?}", e)),
             Ok(("", v)) => Ok(v),
             Ok((junk, _)) => Err(format!("Error parsing, junk at end: {}", junk)),
