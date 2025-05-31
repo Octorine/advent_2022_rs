@@ -45,16 +45,19 @@ case $1 in
         installPhase
         ;;
     runDay)
-        time cargo run --release --bin d${DIR_NAME} src/bin/d${DIR_NAME}/input
+        cargo build --release --bin d${DIR_NAME}
+        time  ./target/release/d${DIR_NAME} src/bin/d${DIR_NAME}/input
         ;;
     testDay)
-        time cargo run --release --bin d${DIR_NAME} src/bin/d${DIR_NAME}/sample
+        cargo build --release --bin d${DIR_NAME}
+        time ./target/release/d${DIR_NAME} src/bin/d${DIR_NAME}/sample
         ;;
     runAll)
+        cargo build --release --bins
         for DAY in $(ls src/bin);
         do
             echo ${DAY}
-            time cargo run --release --bin $DAY src/bin/${DAY}/input
+            time ./target/release/$DAY src/bin/${DAY}/input
             echo
         done
         ;;
