@@ -135,7 +135,10 @@ mod parse {
     pub fn parse_monkeys(txt: &str) -> Result<Vec<Monkey>, String> {
         match monkeys_parser(txt) {
             Ok(("", monkeys)) => Ok(monkeys),
-            Ok((rest, _)) => Err(format!("Error parsing.  Remaining test: {:?}", rest)),
+            Ok((rest, monkeys)) => Err(format!(
+                "Error parsing.  Remaining text: {:?}",
+                (rest, monkeys)
+            )),
             Err(e) => Err(format!("{:?}", e)),
         }
     }
@@ -171,6 +174,7 @@ mod parse {
         let (rest, if_true) = preceded(tag("If true: throw to monkey "), u64)(rest)?;
         let (rest, _) = multispace0(rest)?;
         let (rest, if_false) = preceded(tag("If false: throw to monkey "), u64)(rest)?;
+        let (rest, _) = tag("\n")(rest)?;
         IResult::Ok((
             rest,
             Monkey {
