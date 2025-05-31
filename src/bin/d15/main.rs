@@ -110,13 +110,13 @@ mod parse {
         bytes::complete::tag,
         character::complete::{i32, multispace1},
         multi::separated_list1,
-        sequence::preceded,
+        sequence::{preceded, terminated},
         IResult,
     };
 
     use crate::Sensor;
     pub fn parse(txt: &str) -> Result<Vec<Sensor>, String> {
-        match separated_list1(multispace1, parse_sensor)(txt) {
+        match terminated(separated_list1(multispace1, parse_sensor), tag("\n"))(txt) {
             Err(e) => Err(format!("Error parsing input: {:?}", e)),
             Ok(("", v)) => Ok(v),
             Ok((junk, _)) => Err(format!("Error parsing, junk at end: {}", junk)),
