@@ -2,7 +2,6 @@ use std::{
     fmt::Display,
     ops::{Add, AddAssign, Sub},
 };
-
 #[derive(Hash, Clone, Copy, Debug, PartialOrd, PartialEq, Ord, Eq)]
 pub struct Coords {
     pub x: i32,
@@ -41,6 +40,7 @@ impl Coords {
             }
         }
     }
+    #[allow(dead_code)]
     pub fn distance(self, other: &Coords) -> i32 {
         (self.x - other.x).abs() + (self.y - other.y).abs()
     }
