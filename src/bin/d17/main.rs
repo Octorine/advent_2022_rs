@@ -7,7 +7,10 @@ fn main() {
         .nth(1)
         .expect("Error: Called without input");
     let puzzle_data = std::fs::read_to_string(puzzle_file).expect("Error: Invalid file.");
-    let gusts: Vec<char> = puzzle_data.chars().collect();
+    let gusts: Vec<char> = puzzle_data
+        .chars()
+        .filter(|&c| c == '<' || c == '>')
+        .collect();
     let block_descriptions = [
         vec!["####"],
         vec![".#.", "###", ".#."],
