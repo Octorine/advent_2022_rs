@@ -8,7 +8,7 @@ fn main() {
     let bps = parse::parse(&puzzle_data);
     let mut total = 0;
     for bp in bps.clone().into_iter() {
-        let score = score_bp(bp.clone(), 24);
+        let score = score_bp(&bp, 24);
         total += score;
         println!("Score for BP {} is {}", bp.clone().name, score);
     }
@@ -17,20 +17,20 @@ fn main() {
     for index in 0..(3.min(bps.len() - 1)) {
         let bp = bps[index].clone();
         let bp_name = bp.name as i32;
-        let ct = count_bp(bp, 32);
+        let ct = count_bp(&bp, 32);
         p2_total *= ct;
         println!("Count for BP {} is {}", bp_name, ct);
     }
 
     println!("Part 2: {}", p2_total);
 }
-fn score_bp(bp: BluePrint, limit: i32) -> i32 {
-    bp.clone().name as i32 * count_bp(bp, limit)
+fn score_bp(bp: &BluePrint, limit: i32) -> i32 {
+    bp.name as i32 * count_bp(bp, limit)
 }
-fn count_bp(bp: BluePrint, limit: i32) -> i32 {
+fn count_bp(bp: &BluePrint, limit: i32) -> i32 {
     let to_build = vec![Bot::Ore, Bot::Clay, Bot::Obsidian, Bot::Geode];
 
-    let mut this_round: Vec<Runner> = vec![Runner::new(bp, false)];
+    let mut this_round: Vec<Runner> = vec![Runner::new(bp.clone(), false)];
     let mut next_round: HashSet<Runner> = HashSet::new();
 
     let mut best_score: i32 = 0;
@@ -42,7 +42,7 @@ fn count_bp(bp: BluePrint, limit: i32) -> i32 {
                 for bot in to_build.iter() {
                     if runner.can_build(*bot)
                         && ((bot == &Bot::Geode)
-                            || Some(&runner.bots[bot.index()]) < analysis.get(&bot.resource()))
+                            || runner.bots[bot.index()] < analysis[bot.resource().index()])
                     {
                         let mut new_runner = runner.clone();
                         new_runner.build(*bot);
@@ -52,10 +52,7 @@ fn count_bp(bp: BluePrint, limit: i32) -> i32 {
                 runner.step();
             }
             //            runner.print_all();
-            if runner.resources[Resource::Geode.index()] > best_score {
-                best_score = best_score.max(runner.resources[Resource::Geode.index()]);
-                println!("Best score is {}", best_score);
-            }
+            best_score = best_score.max(runner.resources[Resource::Geode.index()]);
         }
         this_round = next_round.into_iter().collect();
         next_round = HashSet::new();
@@ -112,16 +109,13 @@ struct BluePrint {
 }
 
 impl BluePrint {
-    fn analyze(&self) -> HashMap<Resource, i32> {
-        let mut result: HashMap<Resource, i32> = HashMap::new();
+    fn analyze(&self) -> [i32; 4] {
+        let mut result: [i32; 4] = [0, 0, 0, 0];
         for bot in [Bot::Ore, Bot::Clay, Bot::Obsidian, Bot::Geode].iter() {
             let rcs = &self.costs[bot.index()];
             for (cost, res) in rcs.0.iter() {
-                let new_amt = match result.get(res) {
-                    Some(amt) => amt.max(cost),
-                    None => cost,
-                };
-                result.insert(*res, *new_amt);
+                let new_amt = result[res.index()];
+                result[res.index()] = new_amt.max(*cost);
             }
         }
         result
@@ -142,7 +136,7 @@ struct Runner {
 impl Runner {
     fn new(bp: BluePrint, verbose: bool) -> Runner {
         let r = Runner {
-            bp: bp.clone(),
+            bp: bp,
             verbose,
             time: 0,
             resources: [0, 0, 0, 0],
