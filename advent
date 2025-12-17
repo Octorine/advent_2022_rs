@@ -49,8 +49,8 @@ case $1 in
         time  ./target/release/d${DIR_NAME} src/bin/d${DIR_NAME}/input
         ;;
     testDay)
-        cargo build --release --bin d${DIR_NAME}
-        time ./target/release/d${DIR_NAME} src/bin/d${DIR_NAME}/sample
+        cargo build --bin d${DIR_NAME}
+        time ./target/debug/d${DIR_NAME} src/bin/d${DIR_NAME}/sample
         ;;
     runAll)
         cargo build --release --bins
