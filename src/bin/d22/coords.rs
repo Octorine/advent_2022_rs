@@ -19,6 +19,13 @@ impl Coords {
     pub fn new(x: i32, y: i32) -> Coords {
         Coords { x, y }
     }
+
+    pub(crate) fn scalar(&self, scalar: i32) -> Coords {
+        Coords {
+            x: self.x * scalar,
+            y: self.y * scalar,
+        }
+    }
 }
 
 impl Add for Coords {
