@@ -1,6 +1,5 @@
-use crate::coords::*;
 use crate::board::*;
-
+use crate::coords::*;
 
 pub struct FlatBoard {
     rows: Vec<Vec<char>>,
@@ -20,44 +19,38 @@ impl Board for FlatBoard {
         }
     }
     fn warp(&self, old_player: &Player) -> Player {
-	let prev = old_player.coords;
-	let next = prev + STEPS[old_player.facing];
-	Player { facing: old_player.facing,
-		 coords: 
-	if next.x < 0
-           || next.y < 0
-           || next.y as usize >= self.rows.len()
-           || next.x as usize >= self.rows[next.y as usize].len()
-           || self.sample(next) == ' '
+        let prev = old_player.coords;
+        let next = prev + STEPS[old_player.facing];
+        Player {
+            facing: old_player.facing,
+            coords: if next.x < 0
+                || next.y < 0
+                || next.y as usize >= self.rows.len()
+                || next.x as usize >= self.rows[next.y as usize].len()
+                || self.sample(next) == ' '
+            {
+                let difference = next - prev;
 
-       {
-           let difference = next - prev;
-
-           if (difference.x.abs() == 1 && difference.y == 0)
-               || (difference.x == 0 && difference.y.abs() == 1)
-           {
-               let mut current = prev;
-               while !(current.x < 0
-                   || current.y < 0
-                   || current.y as usize >= self.rows.len()
-                   || current.x as usize >= self.rows[current.y as usize].len()
-                   || self.sample(current) == ' ')
-               {
-                   current = current - difference;
-               }
-               current + difference
-           } else {
-               panic!("Invalid difference for {} and {}", prev, next);
-           }
-       } else {
-
-           next
-       }
-	
-	}
+                if (difference.x.abs() == 1 && difference.y == 0)
+                    || (difference.x == 0 && difference.y.abs() == 1)
+                {
+                    let mut current = prev;
+                    while !(current.x < 0
+                        || current.y < 0
+                        || current.y as usize >= self.rows.len()
+                        || current.x as usize >= self.rows[current.y as usize].len()
+                        || self.sample(current) == ' ')
+                    {
+                        current = current - difference;
+                    }
+                    current + difference
+                } else {
+                    panic!("Invalid difference for {} and {}", prev, next);
+                }
+            } else {
+                next
+            },
+        }
     }
 }
 const FACINGS: [char; 4] = ['>', 'v', '<', '^'];
-
-
-

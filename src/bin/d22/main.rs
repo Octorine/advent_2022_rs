@@ -1,11 +1,11 @@
+mod board;
 mod coords;
 mod cube_game;
 mod flat_game;
-mod board;
 mod game;
-use game::*;
 use cube_game::*;
 use flat_game::*;
+use game::*;
 
 fn main() {
     let puzzle_file = std::env::args()
@@ -27,6 +27,5 @@ fn main() {
 }
 
 fn parse_input(puzzle_data: &str) -> (&str, &str) {
-
     puzzle_data.split_once("\n\n").unwrap()
 }

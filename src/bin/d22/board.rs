@@ -1,8 +1,7 @@
-
 use crate::coords::*;
 
 #[derive(Debug)]
- pub struct Player {
+pub struct Player {
     pub facing: usize,
     pub coords: Coords,
 }
@@ -20,8 +19,6 @@ pub const STEPS: [Coords; 4] = [
     Coords { x: -1, y: 0 },
     Coords { x: 0, y: -1 },
 ];
-
-
 
 pub trait Board {
     fn new(board: &str) -> Self;

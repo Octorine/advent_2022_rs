@@ -1,5 +1,5 @@
-use crate::coords::*;
 use crate::board::*;
+use crate::coords::*;
 
 pub struct CubeBoard {
     rows: Vec<Vec<char>>,
@@ -8,13 +8,13 @@ pub struct CubeBoard {
 }
 impl CubeBoard {
     fn find_side(&self, coords: Coords) -> usize {
-	(0 .. self.sides.len())
-	    .into_iter()
-	    .find(|si| self.sides[*si].contains(coords))
-	    .unwrap()
+        (0..self.sides.len())
+            .into_iter()
+            .find(|si| self.sides[*si].contains(coords))
+            .unwrap()
     }
     fn rotate_facing(&self, facing: usize, new_rotation: Rotation) -> usize {
-	((facing + new_rotation.index())) % FACINGS.len() 
+        (facing + new_rotation.index()) % FACINGS.len()
     }
 
     fn rotate_coords(&self, coords: Coords, new_rotation: Rotation) -> Coords {
@@ -28,10 +28,9 @@ impl CubeBoard {
         }
     }
 }
-impl CubeBoard {
-}
+impl CubeBoard {}
 
-impl Board for  CubeBoard {
+impl Board for CubeBoard {
     fn new(board: &str) -> Self {
         let rows: Vec<Vec<char>> = board.lines().map(|s| s.chars().collect()).collect();
         let width = rows.iter().map(|r| r.len()).max().unwrap();
@@ -48,7 +47,7 @@ impl Board for  CubeBoard {
                 {
                     sv.push(Side {
                         top_left: Coords::new((i * side_length) as i32, (j * side_length) as i32),
-			bottom_right: Coords::new(
+                        bottom_right: Coords::new(
                             (1 + i) as i32 * side_length as i32,
                             (j + 1) as i32 * side_length as i32,
                         ),
@@ -57,7 +56,7 @@ impl Board for  CubeBoard {
                     });
                 }
             }
-	}
+        }
 
         // Fix side linkages.
 
@@ -159,15 +158,14 @@ impl Board for  CubeBoard {
         }
     }
     fn warp(&self, old_player: &Player) -> Player {
-
         //   Check if we crossed an edge.  If not do nothing. If we did, calculate a new position
         //   and orientation for the player.
-	let next = old_player.coords + STEPS[old_player.facing];
+        let next = old_player.coords + STEPS[old_player.facing];
         let current_side: usize = self.find_side(old_player.coords);
         if self.sides[current_side].contains(next) {
             Player {
                 coords: next,
- 
+
                 facing: old_player.facing,
             }
         } else {
@@ -185,7 +183,6 @@ impl Board for  CubeBoard {
             }
         }
     }
-
 }
 
 struct Linkifier<'a> {
@@ -261,7 +258,8 @@ impl<'a> Linkifier<'a> {
             let primary_edge_index = primary_edge.index;
             let primary_edge_rotation = primary_edge.rotation;
             if primary_edge.is_valid() {
-                let secondary_edge = self.sides[primary_edge_index].edge(secondary_direction.rotate(primary_edge_rotation));
+                let secondary_edge = self.sides[primary_edge_index]
+                    .edge(secondary_direction.rotate(primary_edge_rotation));
                 let secondary_edge_index = secondary_edge.index;
                 if secondary_edge.is_valid() {
                     let new_rotation = primary_edge_rotation.compose(secondary_edge.rotation);

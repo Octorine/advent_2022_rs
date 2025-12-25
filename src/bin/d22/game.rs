@@ -6,13 +6,13 @@ pub struct Game<B> {
     pub player: Player,
 }
 
-impl<B: Board> Game <B>{
+impl<B: Board> Game<B> {
     pub fn new(board: &str) -> Game<B> {
         let mut new_game = Game {
-           board: <B>::new(board),
-           player: Player {
-           coords: Coords::new(0, 0),
-           facing: 0,
+            board: <B>::new(board),
+            player: Player {
+                coords: Coords::new(0, 0),
+                facing: 0,
             },
         };
         new_game.find_player();
@@ -69,7 +69,7 @@ impl<B: Board> Game <B>{
     }
 
     pub fn warp(&self, prev: &Player) -> Player {
-	self.board.warp(prev)
+        self.board.warp(prev)
     }
 
     pub fn sample(&self, c: Coords) -> char {
