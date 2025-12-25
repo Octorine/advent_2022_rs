@@ -1,123 +1,24 @@
 use crate::coords::*;
+use crate::board::*;
 
-pub struct Game {
-    pub board: CubeBoard,
-    pub player: Player,
+pub struct CubeBoard {
+    rows: Vec<Vec<char>>,
+    sides: [Side; 6],
+    side_length: usize,
 }
-impl Game {
-    pub fn new(board: &str) -> Game {
-        let mut new_game = Game {
-            board: CubeBoard::new(board),
-            player: Player {
-                coords: Coords::new(0, 0),
-                facing: 0,
-            },
-        };
-        new_game.find_player();
-        new_game
-    }
-    pub fn score(&self) -> i32 {
-        self.player.score()
-    }
-    pub fn num_from_path(path: &[char], i: &mut usize) -> usize {
-        let mut j = *i;
-        while path[j].is_digit(10) {
-            j += 1;
-        }
-        let num: String = path[*i..j].iter().collect();
-        *i = j;
-        num.parse().unwrap()
-    }
-    pub fn follow_path<'b>(&mut self, path: &'b str) {
-        let path: Vec<char> = path.chars().collect();
-        let mut i = 0;
-        while i < path.len() {
-            if self.player.coords == Coords::new(10, 5) && self.player.facing == 0 {};
-            if path[i].is_digit(10) {
-                (0..Self::num_from_path(&path, &mut i)).for_each(|_| self.step());
-            } else {
-                self.turn(path[i]);
-                i += 1;
-            }
-        }
-    }
-
-    pub fn find_player(&mut self) {
-        let mut cursor = Coords::new(0, 0);
-        while self.sample(cursor) == ' ' {
-            cursor.x += 1;
-        }
-        self.player.coords = cursor;
-    }
-
-    pub fn turn(&mut self, i: char) {
-        let current = self.player.facing;
-        match i {
-            'L' => self.player.facing = (current + FACINGS.len() - 1) % FACINGS.len(),
-            'R' => self.player.facing = (current + 1) % FACINGS.len(),
-            '\n' => (),
-            _ => panic!("Invalid character {} in path (code = {})!", i, i as usize),
-        }
-    }
-
-    pub fn step(&mut self) {
-        let next = self.player.coords + STEPS[self.player.facing];
-        let next_player = self.warp(next, &self.player);
-        if self.sample(next_player.coords) != '#' {
-            self.player = next_player;
-        }
-    }
-
-    pub fn warp(&self, next: Coords, prev: &Player) -> Player {
-        //   Check if we crossed an edge.  If not do nothing. If we did, calculate a new position
-        //   and orientation for the player.
-        let current_side: usize = self.find_side(prev.coords);
-        if self.board.sides[current_side].contains(next) {
-            Player {
-                coords: next,
-                facing: prev.facing,
-            }
-        } else {
-            let exit_direction = self.board.sides[current_side].find_exit_direction(next);
-            let next_side: usize = self.board.sides[current_side].edge(exit_direction).index;
-            let new_rotation = self.board.sides[current_side].edge(exit_direction).rotation;
-            let new_facing = self.rotate_facing(prev.facing, new_rotation);
-            Player {
-                coords: self.rotate_coords(
-                    next - self.board.sides[current_side].top_left
-                        - STEPS[prev.facing].scalar(self.board.side_length as i32),
-                    new_rotation,
-                ) + self.board.sides[next_side].top_left,
-                facing: new_facing,
-            }
-        }
-    }
-
-    pub fn sample(&self, c: Coords) -> char {
-        self.board.sample(c)
-    }
+impl CubeBoard {
     fn find_side(&self, coords: Coords) -> usize {
-        (0..self.board.sides.len())
-            .into_iter()
-            .find(|s| {
-                self.board.sides[*s].top_left.x <= coords.x
-                    && self.board.sides[*s].top_left.y <= coords.y
-                    && self.board.sides[*s].bottom_right.x > coords.x
-                    && self.board.sides[*s].bottom_right.y > coords.y
-            })
-            .unwrap()
+	(0 .. self.sides.len())
+	    .into_iter()
+	    .find(|si| self.sides[*si].contains(coords))
+	    .unwrap()
     }
     fn rotate_facing(&self, facing: usize, new_rotation: Rotation) -> usize {
-        match new_rotation {
-            Rotation::Identity => facing,
-            Rotation::R1 => (facing + 1) % FACINGS.len(),
-            Rotation::R2 => (facing + 2) % FACINGS.len(),
-            Rotation::R3 => (facing + 3) % FACINGS.len(),
-        }
+	((facing + new_rotation.index())) % FACINGS.len() 
     }
 
     fn rotate_coords(&self, coords: Coords, new_rotation: Rotation) -> Coords {
-        let sl = self.board.side_length as i32;
+        let sl = self.side_length as i32;
         // Rotation goes clockwise R1, R2, R3, Idendity.
         match new_rotation {
             Rotation::Identity => coords,
@@ -127,13 +28,10 @@ impl Game {
         }
     }
 }
-
-pub struct CubeBoard {
-    rows: Vec<Vec<char>>,
-    sides: [Side; 6],
-    side_length: usize,
-}
 impl CubeBoard {
+}
+
+impl Board for  CubeBoard {
     fn new(board: &str) -> Self {
         let rows: Vec<Vec<char>> = board.lines().map(|s| s.chars().collect()).collect();
         let width = rows.iter().map(|r| r.len()).max().unwrap();
@@ -150,7 +48,7 @@ impl CubeBoard {
                 {
                     sv.push(Side {
                         top_left: Coords::new((i * side_length) as i32, (j * side_length) as i32),
-                        bottom_right: Coords::new(
+			bottom_right: Coords::new(
                             (1 + i) as i32 * side_length as i32,
                             (j + 1) as i32 * side_length as i32,
                         ),
@@ -159,7 +57,8 @@ impl CubeBoard {
                     });
                 }
             }
-        }
+	}
+
         // Fix side linkages.
 
         for si in 0..sv.len() {
@@ -236,7 +135,6 @@ impl CubeBoard {
         }
 
         assert!(sv.len() == 6);
-        dbg!(&sv);
 
         let mut sides = [sv[0].clone(); 6];
         for i in 0..6 {
@@ -260,16 +158,36 @@ impl CubeBoard {
             self.rows[c.y as usize][c.x as usize]
         }
     }
+    fn warp(&self, old_player: &Player) -> Player {
+
+        //   Check if we crossed an edge.  If not do nothing. If we did, calculate a new position
+        //   and orientation for the player.
+	let next = old_player.coords + STEPS[old_player.facing];
+        let current_side: usize = self.find_side(old_player.coords);
+        if self.sides[current_side].contains(next) {
+            Player {
+                coords: next,
+ 
+                facing: old_player.facing,
+            }
+        } else {
+            let exit_direction = self.sides[current_side].find_exit_direction(next);
+            let next_side: usize = self.sides[current_side].edge(exit_direction).index;
+            let new_rotation = self.sides[current_side].edge(exit_direction).rotation;
+            let new_facing = self.rotate_facing(old_player.facing, new_rotation);
+            Player {
+                coords: self.rotate_coords(
+                    next - self.sides[current_side].top_left
+                        - STEPS[old_player.facing].scalar(self.side_length as i32),
+                    new_rotation,
+                ) + self.sides[next_side].top_left,
+                facing: new_facing,
+            }
+        }
+    }
+
 }
 
-const FACINGS: [char; 4] = ['>', 'v', '<', '^'];
-
-const STEPS: [Coords; 4] = [
-    Coords { x: 1, y: 0 },
-    Coords { x: 0, y: 1 },
-    Coords { x: -1, y: 0 },
-    Coords { x: 0, y: -1 },
-];
 struct Linkifier<'a> {
     sides: &'a mut [Side],
     side_length: usize,
@@ -286,33 +204,6 @@ impl<'a> Linkifier<'a> {
             x: c.x.rem_euclid((4 * self.side_length) as i32),
             y: c.y.rem_euclid((4 * self.side_length) as i32),
         }
-    }
-    fn try_link<'b>(
-        &'b mut self,
-        si: usize,
-        offset: Coords,
-        my_direction: Direction,
-        their_direction: Direction,
-    ) {
-        let my_rotation = Rotation::calculate(my_direction, their_direction);
-        let their_rotation = Rotation::calculate(their_direction, my_direction);
-        match (0..self.sides.len()).into_iter().find(|si2| {
-            let tl = self.sides[*si2].top_left;
-            !self.sides[si].edge_mut(my_direction).is_valid()
-                && tl == self.wrap(self.sides[si].top_left + offset.scalar(self.side_length as i32))
-        }) {
-            Some(i) => {
-                *(self.sides[si].edge_mut(my_direction)) = Edge {
-                    index: i,
-                    rotation: my_rotation,
-                };
-                *(self.sides[i].edge_mut(their_direction)) = Edge {
-                    index: si,
-                    rotation: their_rotation,
-                };
-            }
-            None => (),
-        };
     }
     fn try_primary_link<'b>(&'b mut self, si: usize, my_direction: Direction) {
         match (0..self.sides.len()).into_iter().find(|si2| {
@@ -379,26 +270,12 @@ impl<'a> Linkifier<'a> {
                         index: secondary_edge_index,
                         rotation: Rotation::calculate(my_direction, their_new_direction),
                     };
-                    // *(self.sides[secondary_edge_index].edge_mut(their_new_direction)) = Edge {
-                    //     index: si,
-                    //     rotation: Rotation::calculate(their_new_direction, my_direction),
-                    // };
                 }
             }
         }
     }
 }
 
-#[derive(Debug)]
-pub struct Player {
-    facing: usize,
-    coords: Coords,
-}
-impl Player {
-    pub fn score(&self) -> i32 {
-        1000 * (1 + self.coords.y) + (4 * (self.coords.x + 1)) + self.facing as i32
-    }
-}
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub struct Side {
     top_left: Coords,
@@ -539,9 +416,5 @@ impl Rotation {
 
     fn compose(self, other: Self) -> Self {
         Rotation::from_index((self.index() + other.index()) % 4)
-    }
-
-    fn compliment(self) -> Rotation {
-        Rotation::from_index((4 - self.index()) % 4)
     }
 }
