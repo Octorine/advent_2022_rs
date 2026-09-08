@@ -7,19 +7,19 @@ fn main() {
     let puzzle_data = std::fs::read_to_string(puzzle_file).expect("Error: Invalid file.");
     let bps = parse::parse(&puzzle_data);
     let mut total = 0;
-    for bp in bps.clone().into_iter() {
-        let score = score_bp(&bp, 24);
+    for bp in bps.iter() {
+        let score = score_bp(bp, 24);
         total += score;
-        println!("Score for BP {} is {}", bp.clone().name, score);
+        // println!("Score for BP {} is {}", bp.clone().name, score);
     }
     println!("Part 1:{}", total);
     let mut p2_total = 1;
     for index in 0..(3.min(bps.len() - 1)) {
-        let bp = bps[index].clone();
+        let bp = &bps[index];
         let bp_name = bp.name as i32;
-        let ct = count_bp(&bp, 32);
+        let ct = count_bp(bp, 32);
         p2_total *= ct;
-        println!("Count for BP {} is {}", bp_name, ct);
+        // println!("Count for BP {} is {}", bp_name, ct);
     }
 
     println!("Part 2: {}", p2_total);
@@ -27,11 +27,13 @@ fn main() {
 fn score_bp(bp: &BluePrint, limit: i32) -> i32 {
     bp.name as i32 * count_bp(bp, limit)
 }
-fn count_bp(bp: &BluePrint, limit: i32) -> i32 {
+/// How many Geodes can you build from a Blueprint in a given amount
+/// of time.
+fn count_bp<'a>(bp: &'a BluePrint, limit: i32) -> i32 {
     let to_build = vec![Bot::Ore, Bot::Clay, Bot::Obsidian, Bot::Geode];
 
-    let mut this_round: Vec<Runner> = vec![Runner::new(bp.clone(), false)];
-    let mut next_round: HashSet<Runner> = HashSet::new();
+    let mut this_round: Vec<Runner<'a>> = vec![Runner::new(&bp, false)];
+    let mut next_round: HashSet<Runner<'a>> = HashSet::new();
 
     let mut best_score: i32 = 0;
 
@@ -46,6 +48,7 @@ fn count_bp(bp: &BluePrint, limit: i32) -> i32 {
                     {
                         let mut new_runner = runner.clone();
                         new_runner.build(*bot);
+
                         next_round.insert(new_runner);
                     }
                 }
@@ -125,16 +128,16 @@ impl BluePrint {
 struct ResourceCost(Vec<(i32, Resource)>);
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-struct Runner {
+struct Runner<'a> {
     verbose: bool,
-    bp: BluePrint,
+    bp: &'a BluePrint,
     time: i32,
     resources: [i32; 4],
     bots: [i32; 4],
 }
 
-impl Runner {
-    fn new(bp: BluePrint, verbose: bool) -> Runner {
+impl<'a> Runner<'a> {
+    fn new(bp: &'a BluePrint, verbose: bool) -> Runner<'a> {
         let r = Runner {
             bp: bp,
             verbose,
